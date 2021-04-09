@@ -27,7 +27,7 @@ namespace :binaries do
 
   desc 'Update the version in version.rb to the vendor youtube-dl version'
   task :update_gem_version do
-    require "erb"
+    require 'erb'
 
     # Hack to get the version template from DATA
     _, data = File.read(__FILE__).split(/^__END__$/, 2)
@@ -49,9 +49,12 @@ namespace :binaries do
     load version_filename
     Gem::Version.new(YoutubeDL::VERSION)
 
-    abort unless system("git commit -a -m 'Updated binaries to #{version}'")
-
     puts "\e[92mSuccessfully updated binaries to version #{version}\e[0m"
+  end
+
+  desc 'Commit the current files'
+  task :commit do
+    abort unless system("git commit -a -m 'Updated binaries to #{version}'")
   end
 
   desc 'Auto update binaries and increment version number'
