@@ -1,0 +1,40 @@
+name: Continous Integration
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  update-youtube-dl:
+    name: "Update youtube-dl"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Update package cache
+        run: sudo apt-get update -y
+      - name: Install youtube-dl dependencies
+        run: sudo apt-get install -y python-ctypes
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7.1
+      - name: Update youtube-dl and version file
+        run: rake binaries:update
+      - name: Gather version details
+        id: details
+        run: |
+          VERSION=$(ruby -e "load 'lib/youtube-dl/version.rb'; puts YoutubeDL::VERSION")
+          VERSION=$(./vendor/bin/youtube-dl --version)
+          echo "::set-output name=version::$(echo $VERSION)"
+      - name: Show version
+        run: echo ${{steps.details.outputs.version}}
+      - name: Commit changes
+        uses: EndBug/add-and-commit
+        with:
+          add: 'vendor/bin lib/youtube-dl/version.rb'
+          author_name: Enrico Genauck
+          author_email: kontakt@enricogenauck.de
+          message: Updated binaries to ${{steps.details.outputs.version}}
+          pull_strategy: 'NO-PULL'
+          push: false
