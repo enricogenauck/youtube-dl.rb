@@ -1,10 +1,9 @@
 name: Continous Integration
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  workflow_dispatch:
+  schedule:
+    - cron:  '0 3,15 * * *'
 
 jobs:
   update-youtube-dl:
@@ -39,4 +38,4 @@ jobs:
           author_email: kontakt@enricogenauck.de
           message: Updated binaries to ${{steps.details.outputs.version}}
           pull_strategy: 'NO-PULL'
-          push: false
+          push: true
