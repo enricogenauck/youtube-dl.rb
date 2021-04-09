@@ -1,0 +1,46 @@
+name: Check and update youtube-dl binaries
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron:  '0 3,15 * * *'
+
+jobs:
+  update-youtube-dl:
+    name: "Check and update youtube-dl binaries"
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Update package cache
+        run: sudo apt-get update -y
+      - name: Install youtube-dl dependencies
+        run: sudo apt-get install -y python-ctypes
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7.1
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Store old version number
+        id: old-details
+        run: |
+          VERSION=$(./vendor/bin/youtube-dl --version)
+          echo "::set-output name=version::$(echo $VERSION)"
+      - name: Update youtube-dl and version file
+        run: rake binaries:update
+      - name: Store new version number
+        id: new-details
+        run: |
+          VERSION=$(./vendor/bin/youtube-dl --version)
+          echo "::set-output name=version::$(echo $VERSION)"
+      - name: Commit changes
+        uses: EndBug/add-and-commit@latest
+        with:
+          add: 'vendor/bin lib/youtube-dl/version.rb'
+          author_name: Enrico Genauck
+          author_email: kontakt@enricogenauck.de
+          message: |
+            Updated binaries to ${{steps.new-details.outputs.version}}
+
+            Previous version was ${{steps.old-details.outputs.version}}
+          pull_strategy: 'NO-PULL'
+          push: true
