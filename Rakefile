@@ -27,6 +27,8 @@ namespace :binaries do
 
   desc 'Update the version in version.rb to the vendor youtube-dl version'
   task :update_gem_version do
+    require "erb"
+
     # Hack to get the version template from DATA
     _, data = File.read(__FILE__).split(/^__END__$/, 2)
 
