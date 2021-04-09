@@ -32,7 +32,7 @@ jobs:
       - name: Show version
         run: echo ${{steps.details.outputs.version}}
       - name: Commit changes
-        uses: EndBug/add-and-commit
+        uses: EndBug/add-and-commit@latest
         with:
           add: 'vendor/bin lib/youtube-dl/version.rb'
           author_name: Enrico Genauck
